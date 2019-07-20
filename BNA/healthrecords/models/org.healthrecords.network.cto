@@ -1,0 +1,73 @@
+
+namespace org.healthrecords.network //namespace of network 
+ // Address definition
+concept Address {
+  o String street
+  o String town 
+  o String country default = "Kenya"
+ }
+// Next of Kin definitions
+ concept NextofKin {
+  o String firstName
+  o String lastName
+  o Integer phoneNumber
+  o String emailAddress
+ }
+ //Hospital definitions
+concept Hospital {
+  o String Name
+  o Address address 
+  o Integer level optional
+  o String emailAddress
+ }
+ enum RequestStatus{
+   o ALLOWED
+   o DENIED
+   o PENDING
+ }
+
+//Assets definitions
+ asset Record identified by recordId {
+    o String recordId
+    o Integer times
+    o String description
+    o String medication optional
+    --> Patient owner
+}
+// Record definition
+asset Request identified by requestID{
+    o String requestID 
+    o String patientemail //Email of patient
+    o String doctoremail //Email of Doctor
+    o RequestStatus status default= "PENDING"
+    --> Doctor owner
+}
+
+
+// network participants definitions
+participant Patient identified by email {
+    o String email //email
+    o String firstName
+    o String lastName
+    o String bloodGroup
+    o Integer Height
+    o Integer Weight
+    o String phoneNo
+    o String dob
+    o Address address optional
+    o NextofKin nextofKin optional 
+    o String[] authorizedProviders // array of provider emails.
+}
+// Doctor 
+participant Doctor identified by emailAddress{
+   o String firstName 
+   o String lastName 
+   o Integer phoneNo
+   o String emailAddress
+   o Hospital hospital optional
+   o String specialization 
+}
+
+transaction Getrequest{
+  o String patientemail
+}

@@ -1,0 +1,15 @@
+1. composer-rest-server -c alice@healthrecords -n never -d n -w true
+2. Upgrade business network:
+     composer archive create -t dir -n .
+     composer network install -a NETWORK-FILENAME.bna -c PeerAdmin@byfn-network-org1
+     composer network upgrade -c PeerAdmin@byfn-network-org1 -n NETWORK-NAME -V NETWORK-VERSION
+3. Start multiuser composer rest
+   -  composer-rest-server -c alice@healthrecords -p 3001
+   - composer-rest-server -c alice@healthrecords -m true
+
+
+
+
+     
+
+

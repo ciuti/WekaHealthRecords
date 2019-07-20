@@ -1,0 +1,136 @@
+rule Docter1CanUpdateReadRecord {
+    description: "Allow all participants read access to all resources"
+    participant: "org.healthrecords.network.Doctor"
+    operation: READ
+    resource: "org.healthrecords.network.Patient"
+    action: ALLOW
+}
+
+// Doctor can
+rule DocterCanUpdateReadRecord {
+    description: "Allow all participants read access to all resources"
+    participant(p): "org.healthrecords.network.Doctor"
+    operation: READ, UPDATE, DELETE, CREATE
+    resource(r): "org.healthrecords.network.Record"
+    condition: (r.owner.authorizedProviders.includes(p.getIdentifier()))
+    action: ALLOW
+}
+
+
+// Rule to allow Doctor to create request
+ rule DoctorCanCreateRequest {
+    description: "Allow all Doctor to create request"
+    participant: "org.healthrecords.network.Doctor"
+    operation: CREATE
+    resource: "org.healthrecords.network.Request"
+    action: ALLOW
+}
+
+
+ rule PatientUpdatePatient {
+    description: "Allow all Patient to update patient"
+    participant(p): "org.healthrecords.network.Patient"
+    operation: UPDATE, READ, DELETE
+    resource(r): "org.healthrecords.network.Patient"
+   	condition: (p.getIdentifier() == r.getIdentifier())
+    action: ALLOW
+}
+
+
+rule DoctorUpdateDoctor {
+    description: "Allow all Doctor to update doctor"
+    participant(p): "org.healthrecords.network.Doctor"
+    operation: UPDATE, READ, DELETE
+    resource(r): "org.healthrecords.network.Doctor"
+   	condition: (p.getIdentifier() == r.getIdentifier())
+    action: ALLOW
+}
+
+// Rule to allow Doctor to view request
+ rule DoctorCanReadRequest{
+  description: "Allow doctors to access request"
+  participant(p): "org.healthrecords.network.Doctor"
+  operation: ALL
+  resource(r): "org.healthrecords.network.Request"
+  condition: (p.getIdentifier() == r.owner.getIdentifier())
+  action: ALLOW
+ }
+
+
+// Rule to allow Doctor to view request
+ rule PatientCanReadRequest{
+  description: "Allow Patient to access request"
+  participant(p): "org.healthrecords.network.Patient"
+  operation: READ, UPDATE
+  resource(r): "org.healthrecords.network.Request"
+  condition: (p.getIdentifier() == r.patientemail)
+  action: ALLOW
+ }
+
+
+
+// Patient can create record
+rule PatientCanCreateRecord {
+    description: "Allow all participants read access to all resources"
+    participant: "org.healthrecords.network.Patient"
+    operation: CREATE
+    resource: "org.healthrecords.network.Record"
+    action: ALLOW
+}
+
+
+// Patient can Delete Update and read record.
+rule PatientCanDelUpdateReadRecord {
+    description: "Allow all participants read access to all resources"
+    participant(p): "org.healthrecords.network.Patient"
+    operation: READ, DELETE, UPDATE
+    resource(r): "org.healthrecords.network.Record"
+  	condition: (p.getIdentifier() == r.owner.getIdentifier())
+    action: ALLOW
+}
+
+
+
+
+
+rule EverybodyCanSubmitTransactions {
+    description: "Allow all participants to submit transactions"
+    participant: "org.healthrecords.network.Doctor"
+    operation: CREATE
+    resource: "org.healthrecords.network.*"
+    action: ALLOW
+}
+
+
+rule SystemACL2 {
+  description:  "System ACL to permit all access"
+  participant: "org.healthrecords.network.**"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.**"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}

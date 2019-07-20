@@ -1,0 +1,330 @@
+import { Component, OnInit, Input } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { PatientService } from './Patient.service';
+import 'rxjs/add/operator/toPromise';
+
+@Component({
+  selector: 'app-patient',
+  templateUrl: './Patient.component.html',
+  styleUrls: ['./Patient.component.css'],
+  providers: [PatientService]
+})
+export class PatientComponent implements OnInit {
+
+  myForm: FormGroup;
+
+  private allParticipants;
+  private participant;
+  private currentId;
+  private errorMessage;
+
+  email = new FormControl('', Validators.required);
+  firstName = new FormControl('', Validators.required);
+  lastName = new FormControl('', Validators.required);
+  bloodGroup = new FormControl('', Validators.required);
+  Height = new FormControl('', Validators.required);
+  Weight = new FormControl('', Validators.required);
+  phoneNo = new FormControl('', Validators.required);
+  dob = new FormControl('', Validators.required);
+  address = new FormControl('', Validators.required);
+  nextofKin = new FormControl('', Validators.required);
+  authorizedProviders = new FormControl('', Validators.required);
+
+
+  constructor(public servicePatient: PatientService, fb: FormBuilder) {
+    this.myForm = fb.group({
+      email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      bloodGroup: this.bloodGroup,
+      Height: this.Height,
+      Weight: this.Weight,
+      phoneNo: this.phoneNo,
+      dob: this.dob,
+      address: this.address,
+      nextofKin: this.nextofKin,
+      authorizedProviders: this.authorizedProviders
+    });
+  };
+
+  ngOnInit(): void {
+    this.loadAll();
+  }
+
+  loadAll(): Promise<any> {
+    const tempList = [];
+    return this.servicePatient.getAll()
+    .toPromise()
+    .then((result) => {
+      this.errorMessage = null;
+      result.forEach(participant => {
+        tempList.push(participant);
+      });
+      this.allParticipants = tempList;
+    })
+    .catch((error) => {
+      if (error === 'Server error') {
+        this.errorMessage = 'Could not connect to REST server. Please check your configuration details';
+      } else if (error === '404 - Not Found') {
+        this.errorMessage = '404 - Could not find API route. Please check your available APIs.';
+        this.errorMessage = error;
+      }
+    });
+  }
+
+	/**
+   * Event handler for changing the checked state of a checkbox (handles array enumeration values)
+   * @param {String} name - the name of the participant field to update
+   * @param {any} value - the enumeration value for which to toggle the checked state
+   */
+  changeArrayValue(name: string, value: any): void {
+    const index = this[name].value.indexOf(value);
+    if (index === -1) {
+      this[name].value.push(value);
+    } else {
+      this[name].value.splice(index, 1);
+    }
+  }
+
+	/**
+	 * Checkbox helper, determining whether an enumeration value should be selected or not (for array enumeration values
+   * only). This is used for checkboxes in the participant updateDialog.
+   * @param {String} name - the name of the participant field to check
+   * @param {any} value - the enumeration value to check for
+   * @return {Boolean} whether the specified participant field contains the provided value
+   */
+  hasArrayValue(name: string, value: any): boolean {
+    return this[name].value.indexOf(value) !== -1;
+  }
+
+  addParticipant(form: any): Promise<any> {
+    this.participant = {
+      $class: 'org.healthrecords.network.Patient',
+      'email': this.email.value,
+      'firstName': this.firstName.value,
+      'lastName': this.lastName.value,
+      'bloodGroup': this.bloodGroup.value,
+      'Height': this.Height.value,
+      'Weight': this.Weight.value,
+      'phoneNo': this.phoneNo.value,
+      'dob': this.dob.value,
+      'address': this.address.value,
+      'nextofKin': this.nextofKin.value,
+      'authorizedProviders': this.authorizedProviders.value
+    };
+
+    this.myForm.setValue({
+      'email': null,
+      'firstName': null,
+      'lastName': null,
+      'bloodGroup': null,
+      'Height': null,
+      'Weight': null,
+      'phoneNo': null,
+      'dob': null,
+      'address': null,
+      'nextofKin': null,
+      'authorizedProviders': null
+    });
+
+    return this.servicePatient.addParticipant(this.participant)
+    .toPromise()
+    .then(() => {
+      this.errorMessage = null;
+      this.myForm.setValue({
+        'email': null,
+        'firstName': null,
+        'lastName': null,
+        'bloodGroup': null,
+        'Height': null,
+        'Weight': null,
+        'phoneNo': null,
+        'dob': null,
+        'address': null,
+        'nextofKin': null,
+        'authorizedProviders': null
+      });
+      this.loadAll(); 
+    })
+    .catch((error) => {
+      if (error === 'Server error') {
+        this.errorMessage = 'Could not connect to REST server. Please check your configuration details';
+      } else {
+        this.errorMessage = error;
+      }
+    });
+  }
+
+
+   updateParticipant(form: any): Promise<any> {
+    this.participant = {
+      $class: 'org.healthrecords.network.Patient',
+      'firstName': this.firstName.value,
+      'lastName': this.lastName.value,
+      'bloodGroup': this.bloodGroup.value,
+      'Height': this.Height.value,
+      'Weight': this.Weight.value,
+      'phoneNo': this.phoneNo.value,
+      'dob': this.dob.value,
+      'address': this.address.value,
+      'nextofKin': this.nextofKin.value,
+      'authorizedProviders': this.authorizedProviders.value
+    };
+
+    return this.servicePatient.updateParticipant(form.get('email').value, this.participant)
+    .toPromise()
+    .then(() => {
+      this.errorMessage = null;
+      this.loadAll();
+    })
+    .catch((error) => {
+      if (error === 'Server error') {
+        this.errorMessage = 'Could not connect to REST server. Please check your configuration details';
+      } else if (error === '404 - Not Found') {
+        this.errorMessage = '404 - Could not find API route. Please check your available APIs.';
+      } else {
+        this.errorMessage = error;
+      }
+    });
+  }
+
+
+  deleteParticipant(): Promise<any> {
+
+    return this.servicePatient.deleteParticipant(this.currentId)
+    .toPromise()
+    .then(() => {
+      this.errorMessage = null;
+      this.loadAll();
+    })
+    .catch((error) => {
+      if (error === 'Server error') {
+        this.errorMessage = 'Could not connect to REST server. Please check your configuration details';
+      } else if (error === '404 - Not Found') {
+        this.errorMessage = '404 - Could not find API route. Please check your available APIs.';
+      } else {
+        this.errorMessage = error;
+      }
+    });
+  }
+
+  setId(id: any): void {
+    this.currentId = id;
+  }
+
+  getForm(id: any): Promise<any> {
+
+    return this.servicePatient.getparticipant(id)
+    .toPromise()
+    .then((result) => {
+      this.errorMessage = null;
+      const formObject = {
+        'email': null,
+        'firstName': null,
+        'lastName': null,
+        'bloodGroup': null,
+        'Height': null,
+        'Weight': null,
+        'phoneNo': null,
+        'dob': null,
+        'address': null,
+        'nextofKin': null,
+        'authorizedProviders': null
+      };
+
+      if (result.email) {
+        formObject.email = result.email;
+      } else {
+        formObject.email = null;
+      }
+
+      if (result.firstName) {
+        formObject.firstName = result.firstName;
+      } else {
+        formObject.firstName = null;
+      }
+
+      if (result.lastName) {
+        formObject.lastName = result.lastName;
+      } else {
+        formObject.lastName = null;
+      }
+
+      if (result.bloodGroup) {
+        formObject.bloodGroup = result.bloodGroup;
+      } else {
+        formObject.bloodGroup = null;
+      }
+
+      if (result.Height) {
+        formObject.Height = result.Height;
+      } else {
+        formObject.Height = null;
+      }
+
+      if (result.Weight) {
+        formObject.Weight = result.Weight;
+      } else {
+        formObject.Weight = null;
+      }
+
+      if (result.phoneNo) {
+        formObject.phoneNo = result.phoneNo;
+      } else {
+        formObject.phoneNo = null;
+      }
+
+      if (result.dob) {
+        formObject.dob = result.dob;
+      } else {
+        formObject.dob = null;
+      }
+
+      if (result.address) {
+        formObject.address = result.address;
+      } else {
+        formObject.address = null;
+      }
+
+      if (result.nextofKin) {
+        formObject.nextofKin = result.nextofKin;
+      } else {
+        formObject.nextofKin = null;
+      }
+
+      if (result.authorizedProviders) {
+        formObject.authorizedProviders = result.authorizedProviders;
+      } else {
+        formObject.authorizedProviders = null;
+      }
+
+      this.myForm.setValue(formObject);
+    })
+    .catch((error) => {
+      if (error === 'Server error') {
+        this.errorMessage = 'Could not connect to REST server. Please check your configuration details';
+      } else if (error === '404 - Not Found') {
+        this.errorMessage = '404 - Could not find API route. Please check your available APIs.';
+      } else {
+        this.errorMessage = error;
+      }
+    });
+
+  }
+
+  resetForm(): void {
+    this.myForm.setValue({
+      'email': null,
+      'firstName': null,
+      'lastName': null,
+      'bloodGroup': null,
+      'Height': null,
+      'Weight': null,
+      'phoneNo': null,
+      'dob': null,
+      'address': null,
+      'nextofKin': null,
+      'authorizedProviders': null
+    });
+  }
+}

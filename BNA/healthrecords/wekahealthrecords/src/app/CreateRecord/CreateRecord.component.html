@@ -1,0 +1,146 @@
+
+<div class="modal fade" id="addTransactionModal" tabindex="-1" role="dialog" aria-labelledby="addTransactionModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="addTransactionModalLabel">Create Transaction</h4>
+        <p class="modal-intro">Enter the required values below.</p>
+      </div>
+      <form [formGroup]="myForm">
+        <div class="modal-body">
+
+
+          
+
+            
+              <div class="form-group text-left">
+                <label for="patientname">patientname</label>
+                
+                  <input formControlName="patientname" type="text" class="form-control">
+                
+              </div>
+            
+          
+
+            
+              <div class="form-group text-left">
+                <label for="doctorId">doctorId</label>
+                
+                  <input formControlName="doctorId" type="text" class="form-control">
+                
+              </div>
+            
+          
+
+            
+              <div class="form-group text-left">
+                <label for="times">times</label>
+                
+                  <input formControlName="times" type="number" class="form-control">
+                
+              </div>
+            
+          
+
+            
+              <div class="form-group text-left">
+                <label for="description">description</label>
+                
+                  <input formControlName="description" type="text" class="form-control">
+                
+              </div>
+            
+          
+
+            
+              <div class="form-group text-left">
+                <label for="medication">medication</label>
+                
+                  <input formControlName="medication" type="text" class="form-control">
+                
+              </div>
+            
+          
+
+            
+              <div class="form-group text-left">
+                <label for="patient">patient</label>
+                
+                    <textarea formControlName="patient" class="form-control" rows="3"></textarea>
+                
+              </div>
+            
+          
+
+            
+          
+
+            
+          
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button (click)="addTransaction(myForm);" type="submit" class="btn btn-success" data-dismiss="modal">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="container col-md-6">
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+        <strong>Error:</strong> {{errorMessage}}
+    </div>
+
+  <div class="row">
+    <div class="col-md-12">
+        <h1 class="transaction-title" id='transactionName'>CreateRecord</h1>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="row">
+        <div class="col-md-12">
+          When invoked, this transaction will have the following attributes:
+          <br>
+          <ul>
+            
+              
+                <li><span class="attribute"><b>patientname</b></span></li>
+              
+            
+              
+                <li><span class="attribute"><b>doctorId</b></span></li>
+              
+            
+              
+                <li><span class="attribute"><b>times</b></span></li>
+              
+            
+              
+                <li><span class="attribute"><b>description</b></span></li>
+              
+            
+              
+                <li><span class="attribute"><b>medication</b></span></li>
+              
+            
+              
+                <li><span class="attribute"><b>patient</b></span></li>
+              
+            
+              
+            
+              
+            
+          </ul>
+        </div>
+      </div>
+      <button (click)="resetForm();" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTransactionModal">Invoke</button>
+    </div>
+  </div>
+</div>
+
